@@ -1,10 +1,10 @@
 <div class="row">
   <div class="col-xs-12">
-    <form [formGroup]="recipeForm">
+    <form [formGroup]="recipeForm" (ngSubmit)="onSubmit()">
       <div class="row">
         <div class="col-xs-12">
           <button type="submit" class="btn btn-success">Save Recipe</button>
-          <button type="submit" class="btn btn-danger">Cancel</button>
+          <button class="btn btn-danger" (click)="onCancel()">Cancel</button>
         </div>
       </div>
       <div class="row">
@@ -27,13 +27,17 @@
               type="text"
               id="imagePath"
               class="form-control"
-              formControlName="imagePath">
+              formControlName="imagePath"
+              #imagePath>
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-xs-12">
-          <img src="" class="img-responsive">
+          <img
+            [src]="imagePath.value"
+            class="img-responsive"
+            style="max-height: 182px">
         </div>
       </div>
 
@@ -52,7 +56,7 @@
         </div>
       </div>
 
-      <div class="row" style="border: 1px solid rebeccapurple">
+      <div class="row">
         <div class="col-xs-12" formArrayName="ingredients">
           <div
             class="row"
@@ -71,7 +75,19 @@
                 formControlName="amount">
             </div>
             <div class="col-xs-2">
-              <button class="btn btn-danger">X</button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                (click)="onDeleteIngredient(i)">X</button>
+            </div>
+            <hr>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <button
+                type="button"
+                class="btn btn-success"
+                (click)="onAddIngredient()">Add Ingredient</button>
             </div>
           </div>
         </div>

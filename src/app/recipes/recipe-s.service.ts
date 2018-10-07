@@ -1,13 +1,16 @@
 import {Recipe} from "./recipe.model";
 import { Injectable} from "@angular/core";
 import {Ingredient} from "../shared/ingredient.model";
+import {Subject} from "rxjs/Rx";
+import {HttpClient} from "@angular/common/http";
 
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecipeSService {
-
+  constructor(private httpClient: HttpClient) {}
+  recipeChanged = new Subject<Recipe[]>();
 
   private recipes: Recipe[] = [
     new Recipe(
@@ -29,21 +32,59 @@ export class RecipeSService {
       'Biscuit Recipe',
       'The American biscuit is very similar to the British scone\n' +
       'British scone',
-      'http://joyofbaking.com/images/biscuits.jpg',
+      'https://i.ytimg.com/vi/dd1iRCadHkc/maxresdefault.jpg',
       [new Ingredient('eggs', 34),
       new Ingredient('sugar', 200),
       new Ingredient('milk', 500)
       ],
-
       )
   ];
 
   getRecipes() {
-    return this.recipes.slice(); // slice is needed to return a new  - exact copy
+    return this.recipes; // slice is needed to return a new  - exact copy
   }
 
   getRecipe(id: number) {
     return this.recipes[id];
   }
 
+  addRecipe(recipe: Recipe) {
+    this.recipes.push(recipe);
+    this.recipeChanged.next(this.recipes.slice());
+  }
+
+  updateRecipe(index: number, newRecipe: Recipe) {
+    this.recipes[index] = newRecipe;
+    this.recipeChanged.next(this.recipes.slice());
+  }
+
+  deleteRecipe(i) {
+    this.recipes.splice(i, 1);
+    this.recipeChanged.next(this.recipes.slice());
+  }
+
+  saveData() {
+    this.httpClient.put('https://recipe-book-3f457.firebaseio.com/recipes.json', this.recipes)
+      .subscribe(
+        (resp: Response) => console.log(resp)
+      );
+  }
+
+  setRecipes(recipes: Recipe[]) {
+    this.recipes = recipes;
+    this.recipeChanged.next(this.recipes.slice());
+  }
+
+  fetchData() {
+    this.httpClient.get<Recipe[]>('https://recipe-book-3f457.firebaseio.com/recipes.json', {observe: 'body', responseType: 'json'})
+      .subscribe(
+        (resp) => {
+          const recipes = resp;
+          this.setRecipes(recipes);
+          console.log(recipes);
+           }
+      );
+  }
 }
+
+
